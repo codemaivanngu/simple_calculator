@@ -2,23 +2,19 @@ from streamlit import session_state
 import streamlit as st
 
 DELTA = 1e-6
-
+st.header('Simple Calculator')
 if 'L' not in session_state:
     session_state.L=[]
 if 's' not in session_state:
     session_state.s=''
-c1,c2 = st.columns([3,1])
-with c1:
-    with st.container(border=True,height=80):
-        if(session_state.s!=""):
-            st.markdown(session_state.s)
-        else: st.markdown("_")
-        st.caption(" ".join(session_state.L))
-with c2:
-    def FAC():
-        if session_state.s!="":session_state.s=""
-        else: session_state.L=[]
-    st.button("AC",type="secondary",use_container_width=True,on_click=lambda:FAC())
+
+operator_map ={
+    '/': '÷',
+    '*': '×',
+    '-': '−',
+    '+': '➕'
+}
+
 stack=[]
 def cal():
     print(session_state.L)
@@ -82,7 +78,7 @@ def F(ss):
     if ss=='.':
         if "." in session_state.s: return
         if len(session_state.s) and session_state.s[-1]=='.':return
-    if session_state.s=="0":
+    if session_state.s=="0" and ss!='.':
         session_state.s=ss
         return
         # if session_state.s=="0":return
@@ -90,6 +86,23 @@ def F(ss):
         session_state.s=""
         # return
     session_state.s=session_state.s+ss
+
+c1,c2 = st.columns([3,1])
+with c1:
+    with st.container(border=True,height=80):
+        if(session_state.s!=""):
+            st.markdown(session_state.s)
+        else: st.markdown("_")
+        st.caption(" ".join(session_state.L))
+with c2:
+    def FAC(back=0):
+        if back and session_state.s!="": session_state.s=session_state.s[:-1]
+        elif session_state.s!="":session_state.s=""
+        else: session_state.L=[]
+        
+    st.button("AC",type="secondary",use_container_width=True,on_click=lambda:FAC())
+    st.button("←",type="secondary",use_container_width=True,on_click=lambda:FAC(1))
+    # col2.button('←', on_click=on_click, args=('←',))
 
 with st.container():
     c1,c2,c3,c4 = st.columns(4)
@@ -100,40 +113,11 @@ with st.container():
     with c2:
         for i in [8,5,2,'.']:
             st.button(str(i),type="secondary",use_container_width=True,on_click=lambda i=i:F(str(i)))
-        # if st.button("8",type="secondary",use_container_width=True):session_state.s= session_state.s+"8"
-        # if st.button("5",type="secondary",use_container_width=True):session_state.s= session_state.s+"5"
-        # if st.button("2",type="secondary",use_container_width=True):session_state.s= session_state.s+"2"
-        # if st.button(".",type="secondary",use_container_width=True):session_state.s= session_state.s+"."
         
     with c3:
         for i in [9,6,3,"="]:
             st.button(str(i),type="secondary",use_container_width=True,on_click=lambda i=i:F(str(i)))
-        # st.button("9",type="secondary",use_container_width=True,on_click=lambda:F("9"))
-        # if st.button("6",type="secondary",use_container_width=True):session_state.s= session_state.s+"6"
-        # if st.button("3",type="secondary",use_container_width=True):session_state.s= session_state.s+"3"
-        # if st.button("=",type="primary",use_container_width=True)
-
     
     with c4:
-        for i in ["/","**","++","--"]:
-            st.button(str(i),type="primary",use_container_width=True,on_click=lambda i=i:F(str(i)[0]))
-        # if st.button("*",type="primary",use_container_width=True):session_state.L.append(session_state.s),session_state.L.append("*"),session_state.s= ""
-        # if st.button("-",type="primary",use_container_width=True):session_state.L.append(session_state.s),session_state.L.append("-"),session_state.s= ""
-        # if st.button("+",type="primary",use_container_width=True):session_state.L.append(session_state.s),session_state.L.append("+"),session_state.s= ""
-        
-    # st.rerun()
-
-    # def cal():
-    #     pass
-    # for i in range(1,11):
-    #     ss= str(i%10)
-    #     if st.button(ss,type="secondary"): session_state.s= session_state.s+ss
-    # for i in ["+","-","*",'/']:
-    #     print(i)
-    #     print(session_state.L)
-    #     if st.button(i,type="primary"): 
-    #         if session_state.s=="":continue
-    #         session_state.L.append(session_state.s),session_state.L.append(i),session_state.s= ""
-    # if st.button("=",type="primary"):cal()
-    # st.header(session_state.s)
-    # st.caption(" ".join(session_state.L))
+        for i in ["/","*","+","-"]:
+            st.button(operator_map[i],type="primary",use_container_width=True,on_click=lambda i=i:F(str(i)[0]))
